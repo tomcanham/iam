@@ -1,7 +1,6 @@
 package serve
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
@@ -12,15 +11,8 @@ import (
 	"google.golang.org/grpc"
 )
 
-// server is used to implement buzz.SearchServiceServer.
-type server struct {
-	buzz.UnimplementedSearchServiceServer
-}
-
-// SayHello implements helloworld.GreeterServer
-func (s *server) Search(_ context.Context, in *buzz.SearchRequest) (*buzz.SearchResponse, error) {
-	log.Printf("Received: %v", in.GetQuery())
-	return &buzz.SearchResponse{Results: []string{in.GetQuery()}}, nil
+func registerServices(s *grpc.Server) {
+	buzz.RegisterServices(s)
 }
 
 func New(cli *cli.CLI) *cobra.Command {
@@ -36,12 +28,18 @@ func New(cli *cli.CLI) *cobra.Command {
 				log.Fatalf("failed to listen: %v", err)
 			}
 
-			s := grpc.NewServer()
-			buzz.RegisterSearchServiceServer(s, &server{})
+			s, err := cli.Server()
+			if err != nil {
+				log.Fatalf("failed to create server: %v", err)
+			}
+
+			registerServices(s)
+
 			log.Printf("server listening at %v", lis.Addr())
 			if err := s.Serve(lis); err != nil {
 				log.Fatalf("failed to serve: %v", err)
 			}
+
 			return nil
 		},
 	}

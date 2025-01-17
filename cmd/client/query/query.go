@@ -22,16 +22,18 @@ func New(cli *cli.CLI) *cobra.Command {
 			addr := fmt.Sprintf("%s:%d", cli.Host, cli.Port)
 			log.Printf("performing query (against %s): %s", addr, args[0])
 
-			conn, err := cli.NewConn()
+			conn, err := cli.NewClientConn()
 			if err == nil {
 				defer conn.Close()
 				c := buzz.NewSearchServiceClient(conn)
 
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+				ctx, cancel := context.WithTimeout(cmd.Context(), time.Second)
 				defer cancel()
 				r, err := c.Search(ctx, &buzz.SearchRequest{Query: args[0]})
 				if err == nil {
 					log.Printf("Results: %v", r.GetResults())
+				} else {
+					log.Printf("Error: %v", err)
 				}
 			}
 
