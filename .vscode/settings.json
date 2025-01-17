@@ -1,0 +1,12 @@
+{
+  "protoc": {
+    "path": "/opt/homebrew/bin/protoc",
+    "options": [
+      "--proto_path=${workspaceRoot}",
+      "--go_out=${workspaceRoot}",
+      "--go_opt=paths=source_relative",
+      "--go-grpc_out=${workspaceRoot}",
+      "--go-grpc_opt=paths=source_relative"
+    ]
+  }
+}
